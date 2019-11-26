@@ -4,7 +4,9 @@
   "description": "WIP",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "echo \"Building library\"",
+    "deploy": "echo \"Deploying library\"",
+    "test": "echo \"Error: no test specified\""
   },
   "repository": {
     "type": "git",
