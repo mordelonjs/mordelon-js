@@ -4,8 +4,8 @@
   "description": "WIP",
   "main": "index.js",
   "scripts": {
-    "build": "echo \"Building library\"",
-    "deploy": "echo \"Deploying library\"",
+    "build": "echo \"Building library\" && tsc --build",
+    "deploy": "npm run build && echo \"Deploying library\" && npm publish",
     "test": "echo \"Error: no test specified\""
   },
   "repository": {
