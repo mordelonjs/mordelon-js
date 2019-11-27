@@ -21,6 +21,8 @@ jobs:
       run: |
         echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
         npm ci
+        npm run build
+        npm run test
         npm run deploy --if-present
       env:
         CI: true
