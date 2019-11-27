@@ -19,7 +19,10 @@
     "proxy",
     "source"
   ],
-  "author": "Cmtz93",
+  "authors": [
+    "Carlos Martinez",
+    "Cristian Nieto"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/aesir-co/mordelon-js/issues"
