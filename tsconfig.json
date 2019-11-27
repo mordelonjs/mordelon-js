@@ -69,5 +69,6 @@
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "lib": ["es2015", "es2016", "dom", "es2018.promise"]
 }
