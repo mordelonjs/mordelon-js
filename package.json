@@ -1,6 +1,6 @@
 {
   "name": "mordelon-js",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "WIP",
   "main": "index.js",
   "scripts": {
@@ -30,5 +30,8 @@
   "homepage": "https://github.com/aesir-co/mordelon-js#readme",
   "devDependencies": {
     "typescript": "^3.7.2"
+  },
+  "dependencies": {
+    "preact": "^10.0.5"
   }
 }
