@@ -1,5 +1,6 @@
 import EventManager from "./EventManager";
-import Http from "./Http";
+import DriverManager from "./DriverManager";
+import Driver from "./Drivers/Driver";
 
 export interface ProxyConfig {
     id?: string,
@@ -23,6 +24,7 @@ export default class Proxy extends EventManager {
     protected type : string;
     protected method: string;
     protected _data: Array<object> = [];
+    protected driver: Driver;
 
     constructor(args: ProxyConfig) {
         super();
@@ -35,6 +37,7 @@ export default class Proxy extends EventManager {
         if (args.load) {
             let promise = this.load();
         }
+        this.driver = DriverManager.registry(this.type);
     }
 
     set loading(loading: boolean) {
@@ -56,9 +59,7 @@ export default class Proxy extends EventManager {
 
     async load() {
         this.loading = true;
-        await Http.get(this.url, {
-                data: Object.assign(this.params || {}, this.extraParams || {}),
-            })
+        await this.driver.load(this)
             .then(response => {
                 this.data = response;
             })
