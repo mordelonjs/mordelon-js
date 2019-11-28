@@ -109,47 +109,39 @@ export interface SourceProps {
     prune?: Prune,
     group?: string,
     render?: Function,
-    // children?: any[]
 }
 
 export interface SourceState {
 
 }
 
-// export default class Source extends Component<SourceProps, SourceState> {
 export default class Source {
 
-    // TODO: remove
     proxyConfig: ProxyConfig = {
         type: "resource",
         url: "test/get",
         load: true
     };
 
-    proxy: Proxy;
-
-    _filters?: Filter[];
-    _sorter?: Sorter;
-    _prune?: Prune;
-    _group?: string;
-
-    // forceUpdate: Function;
+    private readonly proxy: Proxy;
+    private _filters?: Filter[];
+    private _sorter?: Sorter;
+    private _prune?: Prune;
+    private _group?: string;
+    private readonly forceUpdate: Function;
 
     constructor(props: SourceProps & { forceUpdate: Function}) {
-        this._filters = props.filters;
-        this._sorter  = props.sorter;
-        this._prune   = props.prune;
-        this._group   = props.group;
-
-        // this.forceUpdate = props.forceUpdate;
-
+        this._filters    = props.filters;
+        this._sorter     = props.sorter;
+        this._prune      = props.prune;
+        this._group      = props.group;
+        this.forceUpdate = props.forceUpdate;
         this.proxy = ProxyPool.add(this.proxyConfig);
-        this.proxy.on(Proxy.LOAD_DATA_EVENT, props.forceUpdate);
-        // this.proxy.on(Proxy.LOAD_DATA_EVENT, this.handleDataChange.bind(this));
+        this.proxy.on(Proxy.LOAD_DATA_EVENT, this.handleDataChange.bind(this));
     }
 
     handleDataChange() {
-        // /this.forceUpdate();
+        this.forceUpdate();
     }
 
     applyFilters(data) {
@@ -179,20 +171,19 @@ export default class Source {
         return data;
     }
 
-    set filters(filters: Filter[]) {
-        this._filters = filters;
+    set filters(value: Filter[]) {
+        this._filters = value;
     }
 
-    set sorter(sorter: Sorter) {
-        this._sorter = sorter;
+    set sorter(value: Sorter) {
+        this._sorter = value;
     }
 
-    set prune(prune: Prune) {
-        this._prune = prune;
+    set prune(value: Prune) {
+        this._prune = value;
     }
 
-
-    // render() {
-        // return (this.props.render(this.getData()));
-    // }
+    set group(value: string) {
+        this._group = value;
+    }
 }
