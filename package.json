@@ -1,6 +1,6 @@
 {
   "name": "mordelon-js",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "WIP",
   "main": "index.js",
   "scripts": {
@@ -19,7 +19,10 @@
     "proxy",
     "source"
   ],
-  "author": "Cmtz93",
+  "authors": [
+    "Carlos Martinez",
+    "Cristian Nieto"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/aesir-co/mordelon-js/issues"
