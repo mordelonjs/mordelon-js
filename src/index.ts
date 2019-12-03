@@ -5,6 +5,9 @@ import Proxy from "./Proxy";
 import Source from './Source';
 import Driver from "./Drivers/Driver";
 
+declare const global;
+declare const window;
+
 const Mordelon = {
     ProxyPool: ProxyPool,
     EventManager: EventManager,
@@ -14,4 +17,7 @@ const Mordelon = {
     Driver: Driver,
 };
 
+global.Mordelon = Mordelon;
+window.Mordelon = Mordelon;
+module.exports = Mordelon;
 export default Mordelon;
