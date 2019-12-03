@@ -1,4 +1,4 @@
-export const groupCb = (array: object[], groupField: string) : object[] => {
+export function groupCb (array: object[], groupField: string) : object[] {
     if (groupField) {
         let groups = new Map();
         array.forEach((item) => {
@@ -12,4 +12,4 @@ export const groupCb = (array: object[], groupField: string) : object[] => {
     } else {
         return array;
     }
-};
+}

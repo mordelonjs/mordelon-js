@@ -17,7 +17,7 @@ export default class Http {
         }, params.headers || {});
 
         if (['GET', 'DELETE'].indexOf(method) > -1)
-            qs = (url.includes("?")?'':'?') + Http.queryString(params.data || {});
+            qs = (params.data && url.includes("?") ? '&' : '?' ) + Http.queryString(params.data || {});
         else // POST or PUT
             body = JSON.stringify(params.data);
 

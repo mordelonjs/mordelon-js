@@ -1,9 +1,12 @@
 import Driver from "./Drivers/Driver";
+import UrlDriver from "./Drivers/UrlDriver";
 
 export default class DriverManager {
     private static instance: DriverManager;
     protected drivers: Map<string, Driver> = new Map();
-    private constructor() {}
+    private constructor() {
+        this.drivers.set("url", new UrlDriver());
+    }
 
     static getInstance(): DriverManager {
         if (!this.instance) {
@@ -29,5 +32,4 @@ export default class DriverManager {
             throw new Error(`Driver "${name}" not registered!!`);
         }
     }
-
 }

@@ -15,13 +15,12 @@ export interface Filter {
     value: any,
 }
 
-export const filterCb = (array: object[], filters: Filter[]) => {
-    return array.filter((item, index) => {
+export function filterCb (array: object[], filters: Filter[]) {
+    return array.filter((item) => {
         let remove = false;
         filters.forEach(filter => {
             let value = filter.value;
             if (value == undefined ||
-                value == null ||
                 value == '') {
                 return false;
             }
@@ -58,4 +57,4 @@ export const filterCb = (array: object[], filters: Filter[]) => {
         });
         return !remove;
     });
-};
+}

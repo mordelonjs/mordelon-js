@@ -3,7 +3,7 @@ export interface Sorter {
     direction: string,
 }
 
-export const sorterCb = (array: object[], sorter: Sorter) => {
+export function sorterCb (array: object[], sorter: Sorter) {
     let direction = sorter.direction;
     return array.sort((a, b) => {
         let aField = a[sorter.field];
@@ -11,4 +11,4 @@ export const sorterCb = (array: object[], sorter: Sorter) => {
         if (aField === bField) return 0;
         return direction === "DESC" ? (aField < bField ? 1 : -1) : (aField > bField ? 1 : -1);
     })
-};
+}

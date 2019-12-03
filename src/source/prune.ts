@@ -4,6 +4,6 @@ export interface Prune {
     limit: number,
 }
 
-export const pruneCb = (array: object[], prune: Prune) => {
+export function pruneCb (array: object[], prune: Prune) {
     return array.slice(prune.start, prune.limit + (prune.start || 0));
-};
+}

@@ -18,11 +18,11 @@ export default class Proxy extends EventManager {
     static ERROR_EVENT = 'error';
 
     protected id: string;
-    protected url: string;
+    readonly url: string;
     readonly params : object;
     extraParams : object;
-    protected type : string;
-    protected method: string;
+    readonly type : string;
+    readonly method: string;
     protected _data: Array<object> = [];
     protected driver: Driver;
 
@@ -59,6 +59,9 @@ export default class Proxy extends EventManager {
 
     async load() {
         this.loading = true;
+        if (this.driver == undefined) {
+            throw new Error("Driver undefined!!!");
+        }
         await this.driver.load(this)
             .then(response => {
                 this.data = response;
