@@ -1,4 +1,3 @@
-
 export enum FilterOperator {
     Equal               = "=",
     Equality            = "==",
