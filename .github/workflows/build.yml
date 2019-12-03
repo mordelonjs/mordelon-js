@@ -1,7 +1,7 @@
 name: Mordelon CI Test Pull Request
 
 on:
-  pull:
+  pull_request:
     branches:
     - master
 
