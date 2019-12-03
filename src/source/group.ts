@@ -1,4 +1,3 @@
-
 export const groupCb = (array: object[], groupField: string) : object[] => {
     if (groupField) {
         let groups = new Map();
