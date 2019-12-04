@@ -34,10 +34,10 @@ export default class Proxy extends EventManager {
         this.params = args.params || {};
         this.extraParams = args.extraParams || {};
         this.method = args.method || "GET";
+        this.driver = DriverManager.registry(this.type);
         if (args.load) {
             let promise = this.load();
         }
-        this.driver = DriverManager.registry(this.type);
     }
 
     set loading(loading: boolean) {
