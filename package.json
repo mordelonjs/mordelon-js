@@ -2,11 +2,13 @@
   "name": "mordelon-js",
   "version": "0.0.10",
   "description": "WIP",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "files": ["dist"],
+  "types": "@types/index.d.ts",
   "scripts": {
-    "build": "echo \"Building library\" && tsc --build",
-    "watch": "echo \"Watching change on library\" && tsc -w",
+    "build": "echo \"Building library\" && rollup -c",
+    "watch": "echo \"Watching change on library\" && rollup -cw",
     "deploy": "echo \"Deploying library\" && npm publish",
     "test": "echo \"Error: no test specified\""
   },
@@ -32,6 +34,8 @@
   "homepage": "https://github.com/aesir-co/mordelon-js#readme",
   "devDependencies": {
     "@types/node": "^12.12.14",
+    "rollup": "^1.27.13",
+    "rollup-plugin-typescript2": "^0.25.3",
     "typescript": "^3.7.2"
   }
 }

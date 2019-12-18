@@ -4,7 +4,7 @@ import Driver from "./Drivers/Driver";
 
 export interface ProxyConfig {
     id?: string,
-    type: string,
+    type?: string,
     url?: string,
     method?: string,
     readonly params?: object,
@@ -19,17 +19,17 @@ export default class Proxy extends EventManager {
 
     protected id: string;
     readonly url: string;
-    readonly params : object;
-    extraParams : object;
-    readonly type : string;
-    readonly method: string;
-    protected _data: Array<object> = [];
+    readonly params: object = {};
+    extraParams: object = {};
+    readonly type: string = "url";
+    readonly method: string = 'GET';
+    protected _data: object[] = [];
     protected driver: Driver;
 
     constructor(args: ProxyConfig) {
         super();
         this.id = Proxy.getHash(args);
-        this.type = args.type;
+        this.type = args.type || "url";
         this.url = args.url || "";
         this.params = args.params || {};
         this.extraParams = args.extraParams || {};

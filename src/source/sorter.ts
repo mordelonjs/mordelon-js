@@ -5,7 +5,7 @@ export interface Sorter {
 
 export function sorterCb (array: object[], sorter: Sorter) {
     let direction = sorter.direction;
-    return array.sort((a, b) => {
+    return array && sorter && array.sort((a, b) => {
         let aField = a[sorter.field];
         let bField = b[sorter.field];
         if (aField === bField) return 0;
