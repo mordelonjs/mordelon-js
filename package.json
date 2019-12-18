@@ -4,7 +4,9 @@
   "description": "WIP",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "types": "@types/index.d.ts",
   "scripts": {
     "build": "echo \"Building library\" && rollup -c",
@@ -24,8 +26,8 @@
     "source"
   ],
   "authors": [
-    "Carlos Martinez",
-    "Cristian Nieto"
+    "Carlos Martinez <mtz677@gmail.com>",
+    "Cristian Nieto <cristian.nieto.101@gmail.com>"
   ],
   "license": "MIT",
   "bugs": {
