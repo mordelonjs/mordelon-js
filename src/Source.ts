@@ -21,6 +21,19 @@ export interface HandleFunc {
     (data: object[], params?: any): object[];
 }
 
+export interface Pagination {
+    total: number,
+    currentPage: number,
+    lastPage: number,
+    perPage: number,
+    from: number,
+    to: number,
+    previous: Function,
+    hasPreviousPage: Function,
+    next: Function,
+    hasNextPage: Function,
+}
+
 export default class Source {
     protected readonly proxy: Proxy;
     protected _data: object[] = [];
@@ -44,16 +57,16 @@ export default class Source {
         this._sorter     = args.sorter;
         this._prune      = args.prune;
         this._group      = args.group;
-        this._paginate   = args.paginate;
+        this._paginate   = !!args.paginate;
         if (args.paginate && !this._prune) {
             // pagination default
             this._prune  = { start: 0, limit: 20 };
         }
         this.proxy       = ProxyPool.add(args);
         this._handleDataChange = args.handleDataChange;
-        this.proxy.on(Proxy.LOAD_DATA_EVENT, (data) => this.data = data);
-        this.proxy.on(Proxy.LOADING_EVENT, (loading) => this.loading = loading);
-        this.proxy.on(Proxy.ERROR_EVENT, (reason) => this.error = reason);
+        this.proxy.on(Proxy.LOAD_DATA_EVENT, (data: object[]) => this.data = data);
+        this.proxy.on(Proxy.LOADING_EVENT, (loading: boolean) => this.loading = loading);
+        this.proxy.on(Proxy.ERROR_EVENT, (reason: any) => this.error = reason);
     }
 
     set handleDataChange(cb: Function) {
@@ -91,67 +104,70 @@ export default class Source {
         this._handleGroup = cb;
     }
 
-    protected changeData() {
+    protected changeData(): void {
         this._handleDataChange &&
-        this._handleDataChange();
+        this._handleDataChange(this.wrapper);
     }
 
-    protected applyMapping(data) { // for adding data
+    protected applyMapping(data: object[]): object[] { // for adding data
         return this._handleMapping ? this._handleMapping(data) : data;
     }
 
-    protected applyFilters(data) {
+    protected applyFilters(data: object[]): object[] {
         return this._filters && this._handleFilters ? this._handleFilters(data, this._filters) : data;
     }
 
-    protected applySorter(data) {
+    protected applySorter(data: object[]): object[] {
         return this._sorter && this._handleSorter ? this._handleSorter(data, this._sorter) : data;
     }
 
-    protected applyPrune(data) {
+    protected applyPrune(data: object[]): object[] {
         return this._prune && this._handlePrune ? this._handlePrune(data, this._prune) : data;
     }
 
-    protected applyGroup(data) { //unused
+    protected applyGroup(data: object[]): object[] { //unused
         return this._group && this._handleGroup ? this._handleGroup(data, this._group) : data;
     }
 
-    protected updateData(data) {
+    protected updateData(data: object[]): void {
         let dataMapping = this.applyMapping(data);
         let dataFiltered = this.applyFilters(dataMapping);
         let dataSortered = this.applySorter(dataFiltered);
         this._data = dataSortered;
     }
 
-    set data(data) {
+    set data(data: object[]) {
         this.updateData(data);
         this.changeData();
     }
 
-    get data() {
+    get data(): object[] {
+        return this.wrapper.data;
+    }
+
+    get wrapper(): { data: object[] } {
         let wrapper = { data: this.applyPrune(this._data) };
-        if (this._paginate === true) {
+        if (this._paginate === true && this._prune) {
             Object.assign(wrapper, this.pagination());
         }
         return wrapper;
     }
 
-    private pagination() {
-        if (!this._prune) return {};
+    private pagination(): Pagination {
         const length = this._data.length;
-        const limit = this._prune.limit;
-        const start = this._prune.start || 0;
+        const limit = this._prune && this._prune.limit || 20;
+        const start = this._prune && this._prune.start || 0;
 
         return {
             total: length,
             currentPage: Math.floor(start / limit ) + 1,
-            lastPage: Math.floor( length / limit ) + 1,
+            lastPage: Math.floor( length / limit ),
             perPage: limit,
             from: start,
             to: limit + start,
-            previous: () => { Object.assign(this._prune, { start: Math.max(start - limit, 0)}) },
+            previous: () => { Object.assign(this._prune, { start: Math.max(start - limit, 0)}); this.changeData() },
             hasPreviousPage: () => { return start > 0 },
-            next: () => { Object.assign(this._prune, { start: Math.min(start + limit, Math.floor(length / limit) * limit ) }) },
+            next: () => { Object.assign(this._prune, { start: Math.min(start + limit, Math.floor(length / limit) * limit ) }); this.changeData() },
             hasNextPage: () => { return (limit + start) < length },
         }
     }
@@ -168,12 +184,13 @@ export default class Source {
 
     set filters(value: Filter[]) {
         this._filters = value;
-        this.updateData(this.proxy.data);
+        Object.assign(this._prune, { start: 0 });
+        this.data = this.proxy.data;
     }
 
     set sorter(value: Sorter) {
         this._sorter = value;
-        this.updateData(this.proxy.data);
+        this.data = this.proxy.data;
     }
 
     set prune(value: Prune) {
