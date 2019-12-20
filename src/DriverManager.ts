@@ -1,9 +1,12 @@
 import Driver from "./Drivers/Driver";
 import UrlDriver from "./Drivers/UrlDriver";
+import LazyDriver from "./Drivers/LazyDriver";
+import DriverMap from "./Utils/DriverMap";
 
 export default class DriverManager {
     private static instance: DriverManager;
-    protected drivers: Map<string, Driver> = new Map();
+    // @ts-ignore
+    protected drivers: Map<string, Driver> = new DriverMap();
     private constructor() {
         this.drivers.set("url", new UrlDriver());
     }
@@ -25,11 +28,14 @@ export default class DriverManager {
     }
 
     static registry(name: string): Driver {
-        const drivers = this.getInstance().drivers;
+        let drivers = this.getInstance().drivers;
         if (drivers.has(name)) {
             return <Driver>drivers.get(name);
         } else {
-            throw new Error(`Driver "${name}" not registered!!`);
+            // set driver
+            drivers.set(name, new LazyDriver(name, drivers));
+            // return lazy driver
+            return <Driver>drivers.get(name);
         }
     }
 }
