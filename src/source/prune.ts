@@ -5,5 +5,5 @@ export interface Prune {
 }
 
 export function pruneCb (array: object[], prune: Prune) {
-    return array.slice(prune.start, prune.limit + (prune.start || 0));
+    return array && prune && array.slice(prune.start, prune.limit + (prune.start || 0));
 }

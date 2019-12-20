@@ -16,7 +16,7 @@ export interface Filter {
 }
 
 export function filterCb (array: object[], filters: Filter[]) {
-    return array.filter((item) => {
+    return filters && array && array.filter((item) => {
         let remove = false;
         filters.forEach(filter => {
             let value = filter.value;

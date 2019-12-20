@@ -1,12 +1,16 @@
 {
   "name": "mordelon-js",
-  "version": "0.0.9",
+  "version": "0.1.1",
   "description": "WIP",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
+  "types": "@types/index.d.ts",
   "scripts": {
-    "build": "echo \"Building library\" && tsc --build",
-    "watch": "echo \"Watching change on library\" && tsc -w",
+    "build": "echo \"Building library\" && rollup -c",
+    "watch": "echo \"Watching change on library\" && rollup -cw",
     "deploy": "echo \"Deploying library\" && npm publish",
     "test": "echo \"Error: no test specified\""
   },
@@ -22,8 +26,8 @@
     "source"
   ],
   "authors": [
-    "Carlos Martinez",
-    "Cristian Nieto"
+    "Carlos Martinez <mtz677@gmail.com>",
+    "Cristian Nieto <cristian.nieto.101@gmail.com>"
   ],
   "license": "MIT",
   "bugs": {
@@ -32,6 +36,8 @@
   "homepage": "https://github.com/aesir-co/mordelon-js#readme",
   "devDependencies": {
     "@types/node": "^12.12.14",
+    "rollup": "^1.27.13",
+    "rollup-plugin-typescript2": "^0.25.3",
     "typescript": "^3.7.2"
   }
 }
