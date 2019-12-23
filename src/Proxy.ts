@@ -36,7 +36,7 @@ export default class Proxy extends EventManager {
         this.method = args.method || "GET";
         this.driver = DriverManager.registry(this.type);
         if (args.load) {
-            let promise = this.load();
+            this.load();
         }
     }
 
@@ -57,15 +57,14 @@ export default class Proxy extends EventManager {
         return config.id || Math.random().toString(36).substring(3);
     }
 
+    public setDriver(driver: Driver) {
+        this.driver = driver;
+    }
+
     async load() {
         this.loading = true;
-        if (this.driver == undefined) {
-            throw new Error("Driver undefined!!!");
-        }
         await this.driver.load(this)
-            .then(response => {
-                this.data = response;
-            })
+            .then(response => this.data = response)
             .catch(reason => this.fire(Proxy.ERROR_EVENT, reason))
             .finally(() => this.loading = false);
     }

@@ -29,8 +29,8 @@ export default class LazyDriver extends Driver {
         }
         return new Promise((resolve, reject) => {
             this._promises[this._name].push((driver) => {
-                proxy.driver = driver;
-                proxy.driver.load(proxy).then(resolve, reject);
+                proxy.setDriver(driver);
+                driver.load(proxy).then(resolve, reject);
             });
         });
     }
@@ -51,14 +51,14 @@ export default class LazyDriver extends Driver {
 
     private checkOnLoad() {
         let bench = this.benchmarking;
-        if (bench >= 3000 &&
-            bench < 10000 &&
+        if (bench >= 1000 &&
+            bench < 3000 &&
             !this._showLoadWarningOnlyOnce) {
             this._showLoadWarningOnlyOnce = true;
-            console.warn(`Driver "${this._name}" took more than 3 seg to load`);
-        } else if (bench > 3000 && bench > 10000) {
+            console.warn(`Driver "${this._name}" took more than 1 seg to load`);
+        } else if (bench > 1000 && bench > 3000) {
             clearInterval(this._interval);
-            throw new Error(`Driver "${this._name}" took more than 10 seg to load`);
+            console.error(`Driver "${this._name}" took more than 3 seg to load`);
         }
     }
 }

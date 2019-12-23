@@ -14,7 +14,9 @@ export interface SourceComponent {
 }
 
 export interface SourceConfig extends SourceComponent, ProxyConfig {
-    handleDataChange?: Function
+    handleDataChange?: Function,
+    handleError?: Function,
+    handleLoading?: Function
 }
 
 export interface HandleFunc {
@@ -64,6 +66,8 @@ export default class Source {
         }
         this.proxy       = ProxyPool.add(args);
         this._handleDataChange = args.handleDataChange;
+        this._handleError = args.handleError;
+        this._handleLoading = args.handleLoading;
         this.proxy.on(Proxy.LOAD_DATA_EVENT, (data: object[]) => this.data = data);
         this.proxy.on(Proxy.LOADING_EVENT, (loading: boolean) => this.loading = loading);
         this.proxy.on(Proxy.ERROR_EVENT, (reason: any) => this.error = reason);
