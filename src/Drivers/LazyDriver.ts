@@ -1,22 +1,20 @@
-import Driver from "./Driver";
-import Proxy from "../Proxy";
+import {
+    Proxy,
+    Driver
+} from "../internal";
 
-export default class LazyDriver extends Driver {
+export class LazyDriver extends Driver {
 
     private _name: string;
-    private _drivers: any;
     private _promises: Proxy[] = [];
     private _benchmarking: number;
     private _interval = setInterval(this.checkOnLoad.bind(this), 500);
     private _showLoadWarningOnlyOnce: boolean = false;
 
-    constructor(name, drivers) {
+    constructor(name) {
         super();
         this._benchmarking = performance.now();
         this._name = name;
-        this._drivers = drivers;
-        this._drivers.watch(this._name, this.process.bind(this));
-
     }
 
     get benchmarking(): number {
@@ -43,8 +41,6 @@ export default class LazyDriver extends Driver {
         if (this._promises[this._name]) {
             this._promises[this._name].forEach(callback => callback(driver));
         }
-
-        this._drivers.unwatch(this._name);
 
         clearInterval(this._interval);
     }

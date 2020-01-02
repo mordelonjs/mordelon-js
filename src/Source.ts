@@ -1,9 +1,15 @@
-import ProxyPool from "./ProxyPool";
-import Proxy, {ProxyConfig} from "./Proxy";
-import {Filter, filterCb} from "./source/filter";
-import {Sorter, sorterCb} from "./source/sorter";
-import {Prune, pruneCb} from "./source/prune";
-import {groupCb} from "./source/group";
+import {
+    Proxy,
+    ProxyPool,
+    ProxyConfig,
+    Filter,
+    Sorter,
+    Prune,
+    filterCb,
+    sorterCb,
+    pruneCb,
+    groupCb
+} from "./internal";
 
 export interface SourceComponent {
     filters?: Filter[],
@@ -36,7 +42,7 @@ export interface Pagination {
     hasNextPage: Function,
 }
 
-export default class Source {
+export class Source {
     protected readonly proxy: Proxy;
     protected _data: object[] = [];
     private _filters?: Filter[];
@@ -134,7 +140,7 @@ export default class Source {
     }
 
     protected updateData(data: object[]): void {
-        let dataMapping = this.applyMapping(data);
+        let dataMapping  = this.applyMapping(data);
         let dataFiltered = this.applyFilters(dataMapping);
         let dataSortered = this.applySorter(dataFiltered);
         this._data = dataSortered;

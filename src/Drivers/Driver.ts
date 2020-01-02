@@ -1,7 +1,14 @@
-import Proxy from "../Proxy";
+import {
+    Proxy,
+    DriverManager
+} from "../internal";
 
-export default abstract class Driver {
+export abstract class Driver {
     async load(proxy: Proxy): Promise<Object[]> {
         return [];
-    };
+    }
+
+    register(name: string) {
+        DriverManager.register(name, this);
+    }
 }

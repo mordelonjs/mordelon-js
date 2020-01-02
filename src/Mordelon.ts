@@ -1,9 +1,11 @@
-import ProxyPool from "./ProxyPool";
-import EventManager from "./EventManager";
-import DriverManager from "./DriverManager";
-import Proxy from "./Proxy";
-import Source from './Source';
-import Driver from "./Drivers/Driver";
+import {
+    ProxyPool,
+    EventManager,
+    DriverManager,
+    Proxy,
+    Driver,
+    Source
+} from "./internal";
 
 const Mordelon = {
     ProxyPool: ProxyPool,
@@ -14,12 +16,14 @@ const Mordelon = {
     Driver: Driver,
 };
 
-export default Mordelon;
-
 declare global {
-    interface Window {
-        Mordelon: any,
+    namespace NodeJS {
+        interface Global {
+            Mordelon: {}
+        }
     }
 }
 
-window.Mordelon = Mordelon;
+global.Mordelon = Mordelon;
+
+export default Mordelon;

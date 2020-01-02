@@ -5,7 +5,7 @@ export interface HttpRequest {
     data?: object,
 }
 
-export default class Http {
+export class Http {
 
     static request(url: string, params: HttpRequest) : Promise<any> {
         let method = params.method || 'GET';

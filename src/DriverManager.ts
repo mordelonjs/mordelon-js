@@ -1,13 +1,16 @@
-import Driver from "./Drivers/Driver";
-import UrlDriver from "./Drivers/UrlDriver";
-import LazyDriver from "./Drivers/LazyDriver";
-import DriverMap from "./Utils/DriverMap";
+import { DriverMap } from "./Utils/DriverMap";
+import {
+    Driver,
+    UrlDriver,
+    LazyDriver
+} from "./internal";
 
-export default class DriverManager {
-    private static instance: DriverManager;
+export class DriverManager {
     // @ts-ignore
     protected drivers: Map<string, Driver> = new DriverMap();
-    private constructor() {
+    private static instance: DriverManager;
+
+    constructor() {
         this.drivers.set("url", new UrlDriver());
     }
 
@@ -32,10 +35,19 @@ export default class DriverManager {
         if (drivers.has(name)) {
             return <Driver>drivers.get(name);
         } else {
-            // set driver
-            drivers.set(name, new LazyDriver(name, drivers));
+            // create lazy driver
+            let lazydriver = new LazyDriver(name);
+            // register lazy driver
+            lazydriver.register(name);
+            // @ts-ignore
+            drivers.watch(name, (driver: Driver) => {
+                // process new driver
+                lazydriver.process(driver);
+                // @ts-ignore
+                drivers.unwatch(name);
+            });
             // return lazy driver
-            return <Driver>drivers.get(name);
+            return lazydriver;
         }
     }
 }

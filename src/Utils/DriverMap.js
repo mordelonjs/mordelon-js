@@ -1,5 +1,5 @@
 
-export default function DriverMap() {
+export function DriverMap() {
     // create map
     let map = new Map();
     // set new prototype
