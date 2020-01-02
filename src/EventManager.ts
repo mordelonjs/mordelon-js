@@ -1,4 +1,4 @@
-export default class EventManager {
+export class EventManager {
     protected listeners: Function[][] = [];
     protected listenersOncer: Function[][] = [];
 

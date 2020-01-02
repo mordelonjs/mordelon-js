@@ -1,6 +1,8 @@
-import EventManager from "./EventManager";
-import DriverManager from "./DriverManager";
-import Driver from "./Drivers/Driver";
+import {
+    EventManager,
+    DriverManager,
+    Driver
+} from "./internal";
 
 export interface ProxyConfig {
     id?: string,
@@ -12,7 +14,7 @@ export interface ProxyConfig {
     load?: boolean
 }
 
-export default class Proxy extends EventManager {
+export class Proxy extends EventManager {
     static LOAD_DATA_EVENT = 'loadData';
     static LOADING_EVENT = 'loading';
     static ERROR_EVENT = 'error';
@@ -40,6 +42,10 @@ export default class Proxy extends EventManager {
         }
     }
 
+    set error(reason) {
+        this.fire(Proxy.ERROR_EVENT, reason)
+    }
+
     set loading(loading: boolean) {
         this.fire(Proxy.LOADING_EVENT, loading);
     }
@@ -65,7 +71,7 @@ export default class Proxy extends EventManager {
         this.loading = true;
         await this.driver.load(this)
             .then(response => this.data = response)
-            .catch(reason => this.fire(Proxy.ERROR_EVENT, reason))
+            .catch(reason => this.error = reason)
             .finally(() => this.loading = false);
     }
 }

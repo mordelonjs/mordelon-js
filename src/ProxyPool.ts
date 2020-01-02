@@ -1,6 +1,9 @@
-import Proxy, {ProxyConfig} from "./Proxy";
+import {
+    Proxy,
+    ProxyConfig
+} from "./internal";
 
-export default class ProxyPool {
+export class ProxyPool {
     private static instance: ProxyPool;
     protected pool: Map<string, Proxy> = new Map();
     private constructor() {}

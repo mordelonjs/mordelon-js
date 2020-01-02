@@ -13,6 +13,12 @@ export default {
             format: 'es',
         },
     ],
+    onwarn: function(warning, warn) {
+        if (warning.code === 'CIRCULAR_DEPENDENCY') {
+            return;
+        }
+        warn(warning);
+    },
     external: [
         ...Object.keys(pkg.dependencies || {}),
         ...Object.keys(pkg.peerDependencies || {}),
