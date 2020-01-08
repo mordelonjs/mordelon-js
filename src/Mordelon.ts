@@ -10,16 +10,23 @@ import {
 const Mordelon = {
     ProxyPool: ProxyPool,
     EventManager: EventManager,
+    DriverManager: DriverManager,
     Source: Source,
     Proxy: Proxy,
-    DriverManager: DriverManager,
     Driver: Driver,
 };
 
 declare global {
     namespace NodeJS {
         interface Global {
-            Mordelon: {}
+            Mordelon: {
+                ProxyPool: any,
+                EventManager: any,
+                DriverManager: any,
+                Source: any,
+                Proxy: any,
+                Driver: any
+            }
         }
     }
 }

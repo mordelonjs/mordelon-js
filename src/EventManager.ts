@@ -10,12 +10,11 @@ export class EventManager {
     }
 
     off(event: string, cb: Function): void {
-        if(this.listeners[event]) {
-            this.listeners[event].forEach((callback, idx) => {
-                if (callback == cb) {
-                    delete this.listeners[event][idx];
-                }
-            });
+        if (this.listeners[event]) {
+            this.listeners[event] = this.listeners[event].filter(callback => callback !== cb);
+            if (this.listeners[event].length == 0) {
+                delete this.listeners[event];
+            }
         }
     }
 

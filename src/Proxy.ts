@@ -6,11 +6,7 @@ import {
 
 export interface ProxyConfig {
     id?: string,
-    type?: string,
-    url?: string,
-    method?: string,
-    readonly params?: object,
-    extraParams?: object,
+    type: string,
     load?: boolean
 }
 
@@ -19,23 +15,17 @@ export class Proxy extends EventManager {
     static LOADING_EVENT = 'loading';
     static ERROR_EVENT = 'error';
 
-    protected id: string;
-    readonly url: string;
-    readonly params: object = {};
-    extraParams: object = {};
+    readonly id: string;
     readonly type: string = "url";
-    readonly method: string = 'GET';
+    readonly options: object = {};
     protected _data: object[] = [];
     protected driver: Driver;
 
     constructor(args: ProxyConfig) {
         super();
         this.id = Proxy.getHash(args);
-        this.type = args.type || "url";
-        this.url = args.url || "";
-        this.params = args.params || {};
-        this.extraParams = args.extraParams || {};
-        this.method = args.method || "GET";
+        this.type = args.type || this.type;
+        this.options = args;
         this.driver = DriverManager.registry(this.type);
         if (args.load) {
             this.load();
@@ -59,17 +49,17 @@ export class Proxy extends EventManager {
         return this._data;
     }
 
-    static getHash(config: ProxyConfig): string {
-        return config.id || Math.random().toString(36).substring(3);
-    }
-
     public setDriver(driver: Driver) {
         this.driver = driver;
     }
 
+    static getHash(config: ProxyConfig): string {
+        return config.id || Math.random().toString(36).substring(3);
+    }
+
     async load() {
         this.loading = true;
-        await this.driver.load(this)
+        await this.driver.load(this.options)
             .then(response => this.data = response)
             .catch(reason => this.error = reason)
             .finally(() => this.loading = false);

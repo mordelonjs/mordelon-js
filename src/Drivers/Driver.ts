@@ -1,14 +1,8 @@
-import {
-    Proxy,
-    DriverManager
-} from "../internal";
-
 export abstract class Driver {
-    async load(proxy: Proxy): Promise<Object[]> {
-        return [];
-    }
+
+    abstract async load(options: object): Promise<Object[]>
 
     register(name: string) {
-        DriverManager.register(name, this);
+        global.Mordelon.DriverManager.register(name, this);
     }
 }

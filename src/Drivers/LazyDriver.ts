@@ -1,15 +1,21 @@
 import {
-    Proxy,
-    Driver
+    Driver,
+    ProxyPool
 } from "../internal";
+
+export interface LazyOptions {
+    id: string
+}
 
 export class LazyDriver extends Driver {
 
     private _name: string;
-    private _promises: Proxy[] = [];
+    private _promises: object[] = [];
     private _benchmarking: number;
     private _interval = setInterval(this.checkOnLoad.bind(this), 500);
     private _showLoadWarningOnlyOnce: boolean = false;
+    private _loadWarningTime = 3000;
+    private _loadErrorTime = 10000;
 
     constructor(name) {
         super();
@@ -21,14 +27,17 @@ export class LazyDriver extends Driver {
         return performance.now() - this._benchmarking;
     }
 
-    async load(proxy: Proxy): Promise<Object[]> {
+    async load(options: LazyOptions): Promise<Object[]> {
         if (!this._promises[this._name]) {
             this._promises[this._name] = [];
         }
         return new Promise((resolve, reject) => {
             this._promises[this._name].push((driver) => {
-                proxy.setDriver(driver);
-                driver.load(proxy).then(resolve, reject);
+                let proxy = ProxyPool.get(options.id);
+                if (proxy) {
+                    proxy.setDriver(driver);
+                    driver.load(options).then(resolve, reject);
+                }
             });
         });
     }
@@ -40,6 +49,7 @@ export class LazyDriver extends Driver {
 
         if (this._promises[this._name]) {
             this._promises[this._name].forEach(callback => callback(driver));
+            delete this._promises[this._name];
         }
 
         clearInterval(this._interval);
@@ -47,14 +57,14 @@ export class LazyDriver extends Driver {
 
     private checkOnLoad() {
         let bench = this.benchmarking;
-        if (bench >= 1000 &&
-            bench < 3000 &&
+        if (bench >= this._loadWarningTime &&
+            bench < this._loadErrorTime &&
             !this._showLoadWarningOnlyOnce) {
             this._showLoadWarningOnlyOnce = true;
-            console.warn(`Driver "${this._name}" took more than 1 seg to load`);
-        } else if (bench > 1000 && bench > 3000) {
+            console.warn(`Driver "${this._name}" took more than ${this._loadWarningTime/1000} seg to load`);
+        } else if (bench > this._loadWarningTime && bench > this._loadErrorTime) {
             clearInterval(this._interval);
-            console.error(`Driver "${this._name}" took more than 3 seg to load`);
+            console.error(`Driver "${this._name}" took more than ${this._loadErrorTime/1000} seg to load`);
         }
     }
 }

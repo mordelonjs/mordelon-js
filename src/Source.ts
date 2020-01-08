@@ -26,7 +26,7 @@ export interface SourceConfig extends SourceComponent, ProxyConfig {
 }
 
 export interface HandleFunc {
-    (data: object[], params?: any): object[];
+    (data: object[], params?: any);
 }
 
 export interface Pagination {
@@ -59,24 +59,28 @@ export class Source {
     protected _handleSorter: HandleFunc = sorterCb;
     protected _handlePrune: HandleFunc = pruneCb;
     protected _handleGroup: HandleFunc = groupCb;
+    //handles Event's
+    protected _handleDataEvent: Function = (data: object[]) => this.data = data;
+    protected _handleLoadingEvent: Function = (loading: boolean) => this.loading = loading;
+    protected _handleErrorEvent: Function = (reason: any) => this.error = reason;
 
     constructor(args: SourceConfig) {
-        this._filters    = args.filters;
-        this._sorter     = args.sorter;
-        this._prune      = args.prune;
-        this._group      = args.group;
-        this._paginate   = !!args.paginate;
-        if (args.paginate && !this._prune) {
-            // pagination default
-            this._prune  = { start: 0, limit: 20 };
+        const { filters, sorter, prune, group, paginate, handleDataChange, handleError, handleLoading, ...options} = args;
+        this._filters   = filters;
+        this._sorter    = sorter;
+        this._prune     = prune;
+        this._group     = group;
+        this._paginate  = !!paginate;
+        if (paginate && !this._prune) {
+            this._prune = { start: 0, limit: 20 };
         }
-        this.proxy       = ProxyPool.add(args);
-        this._handleDataChange = args.handleDataChange;
-        this._handleError = args.handleError;
-        this._handleLoading = args.handleLoading;
-        this.proxy.on(Proxy.LOAD_DATA_EVENT, (data: object[]) => this.data = data);
-        this.proxy.on(Proxy.LOADING_EVENT, (loading: boolean) => this.loading = loading);
-        this.proxy.on(Proxy.ERROR_EVENT, (reason: any) => this.error = reason);
+        this._handleDataChange = handleDataChange;
+        this._handleError      = handleError;
+        this._handleLoading    = handleLoading;
+        this.proxy = ProxyPool.add(options);
+        this.proxy.on(Proxy.LOAD_DATA_EVENT, this._handleDataEvent);
+        this.proxy.on(Proxy.LOADING_EVENT, this._handleLoadingEvent);
+        this.proxy.on(Proxy.ERROR_EVENT, this._handleErrorEvent);
     }
 
     set handleDataChange(cb: Function) {
@@ -114,11 +118,6 @@ export class Source {
         this._handleGroup = cb;
     }
 
-    protected changeData(): void {
-        this._handleDataChange &&
-        this._handleDataChange(this.wrapper);
-    }
-
     protected applyMapping(data: object[]): object[] { // for adding data
         return this._handleMapping ? this._handleMapping(data) : data;
     }
@@ -135,7 +134,7 @@ export class Source {
         return this._prune && this._handlePrune ? this._handlePrune(data, this._prune) : data;
     }
 
-    protected applyGroup(data: object[]): object[] { //unused
+    protected applyGroup(data: object[]) {
         return this._group && this._handleGroup ? this._handleGroup(data, this._group) : data;
     }
 
@@ -143,7 +142,23 @@ export class Source {
         let dataMapping  = this.applyMapping(data);
         let dataFiltered = this.applyFilters(dataMapping);
         let dataSortered = this.applySorter(dataFiltered);
+        // let dataGrouped  = this.applyGroup(dataSortered);
         this._data = dataSortered;
+    }
+
+    protected changeData(): void {
+        this._handleDataChange &&
+        this._handleDataChange(this.wrapper);
+    }
+
+    set loading(value: boolean) {
+        this._handleLoading &&
+        this._handleLoading(value);
+    }
+
+    set error(value: any) {
+        this._handleError &&
+        this._handleError(value);
     }
 
     set data(data: object[]) {
@@ -156,10 +171,14 @@ export class Source {
     }
 
     get wrapper(): { data: object[] } {
-        let wrapper = { data: this.applyPrune(this._data) };
+        let wrapper = {
+            data: this.applyPrune(this._data)
+        };
+
         if (this._paginate === true && this._prune) {
             Object.assign(wrapper, this.pagination());
         }
+
         return wrapper;
     }
 
@@ -182,16 +201,6 @@ export class Source {
         }
     }
 
-    set loading(value: boolean) {
-        this._handleLoading &&
-        this._handleLoading(value);
-    }
-
-    set error(value: any) {
-        this._handleError &&
-        this._handleError(value);
-    }
-
     set filters(value: Filter[]) {
         this._filters = value;
         Object.assign(this._prune, { start: 0 });
@@ -200,6 +209,7 @@ export class Source {
 
     set sorter(value: Sorter) {
         this._sorter = value;
+        Object.assign(this._prune, { start: 0 });
         this.data = this.proxy.data;
     }
 
@@ -209,5 +219,11 @@ export class Source {
 
     set group(value: string) {
         this._group = value;
+    }
+
+    public remove() {
+        this.proxy.off(Proxy.LOAD_DATA_EVENT, this._handleDataEvent);
+        this.proxy.off(Proxy.LOADING_EVENT, this._handleLoadingEvent);
+        this.proxy.off(Proxy.ERROR_EVENT, this._handleErrorEvent);
     }
 }
