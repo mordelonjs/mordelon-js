@@ -1,3 +1,6 @@
+import {
+    Driver
+} from "../internal";
 
 export function DriverMap() {
     // create map
@@ -15,6 +18,9 @@ Object.defineProperties(DriverMap.prototype, {
     set: {
         enumerable: false,
         value: function (key, value) {
+            if (!(value instanceof Driver)) {
+                throw new Error(`"${value.constructor.name}" isn't instance of Driver`)
+            }
             if (this.observer[key]) {
                 this.observer[key](value);
             }

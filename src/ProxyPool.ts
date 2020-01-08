@@ -31,13 +31,18 @@ export class ProxyPool {
     }
 
     static add(proxyConfig: ProxyConfig) : Proxy {
-        let code = Proxy.getHash(proxyConfig);
         const pool = this.getInstance().getPool();
+        let code = Proxy.getHash(proxyConfig);
         if (!pool.has(code)) {
             proxyConfig.id = code;
             pool.set(code, new Proxy(proxyConfig));
         }
         return <Proxy>pool.get(code);
+    }
+
+    static remove(code: string) : boolean {
+        const pool = this.getInstance().getPool();
+        return pool.delete(code);
     }
 
     static get(code: string) : Proxy {
