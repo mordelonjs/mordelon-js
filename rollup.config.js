@@ -6,7 +6,8 @@ export default {
     output: [
         {
             file: pkg.main,
-            format: 'cjs',
+            format: 'iife',
+            name: 'Mordelon'
         },
         {
             file: pkg.module,

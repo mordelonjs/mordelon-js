@@ -16,6 +16,6 @@ export class UrlDriver extends Driver {
             method: options.method,
             data: Object.assign({}, options.params, options.extraParams),
         };
-        return await Http.request(options.url, params);
+        return Http.request(options.url, params);
     }
 }

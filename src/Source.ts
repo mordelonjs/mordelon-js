@@ -22,7 +22,8 @@ export interface SourceComponent {
 export interface SourceConfig extends SourceComponent, ProxyConfig {
     handleDataChange?: Function,
     handleError?: Function,
-    handleLoading?: Function
+    handleLoading?: Function,
+    children?: any
 }
 
 export interface HandleFunc {
@@ -43,7 +44,7 @@ export interface Pagination {
 }
 
 export class Source {
-    protected readonly proxy: Proxy;
+    protected readonly _proxyId: string;
     protected _data: object[] = [];
     private _filters?: Filter[];
     private _sorter?: Sorter;
@@ -65,22 +66,20 @@ export class Source {
     protected _handleErrorEvent: Function = (reason: any) => this.error = reason;
 
     constructor(args: SourceConfig) {
-        const { filters, sorter, prune, group, paginate, handleDataChange, handleError, handleLoading, ...options} = args;
-        this._filters   = filters;
-        this._sorter    = sorter;
-        this._prune     = prune;
-        this._group     = group;
-        this._paginate  = !!paginate;
-        if (paginate && !this._prune) {
-            this._prune = { start: 0, limit: 20 };
-        }
+        const { filters, sorter, prune, group, paginate, handleDataChange, handleError, handleLoading, children, ...options} = args;
+        this._filters  = filters;
+        this._sorter   = sorter;
+        this._group    = group;
+        this._paginate = !!paginate;
+        this._prune    = paginate && !prune ? { start: 0, limit: 20 } : prune;
         this._handleDataChange = handleDataChange;
         this._handleError      = handleError;
         this._handleLoading    = handleLoading;
-        this.proxy = ProxyPool.add(options);
-        this.proxy.on(Proxy.LOAD_DATA_EVENT, this._handleDataEvent);
-        this.proxy.on(Proxy.LOADING_EVENT, this._handleLoadingEvent);
-        this.proxy.on(Proxy.ERROR_EVENT, this._handleErrorEvent);
+        const proxy = ProxyPool.add(options);
+        this._proxyId = proxy.id;
+        proxy.on(Proxy.LOAD_DATA_EVENT, this._handleDataEvent);
+        proxy.on(Proxy.LOADING_EVENT, this._handleLoadingEvent);
+        proxy.on(Proxy.ERROR_EVENT, this._handleErrorEvent);
     }
 
     set handleDataChange(cb: Function) {
@@ -97,17 +96,17 @@ export class Source {
 
     set handleMapping(cb: HandleFunc) {
         this._handleMapping = cb;
-        this.updateData(this.proxy.data);
+        this.updateData();
     }
 
     set handleFilters(cb: HandleFunc) {
         this._handleFilters = cb;
-        this.updateData(this.proxy.data);
+        this.updateData();
     }
 
     set handleSorter(cb: HandleFunc) {
         this._handleSorter = cb;
-        this.updateData(this.proxy.data);
+        this.updateData();
     }
 
     set handlePrune(cb: HandleFunc) {
@@ -138,8 +137,9 @@ export class Source {
         return this._group && this._handleGroup ? this._handleGroup(data, this._group) : data;
     }
 
-    protected updateData(data: object[]): void {
-        let dataMapping  = this.applyMapping(data);
+    protected updateData(): void {
+        const proxy = ProxyPool.get(this.proxyId);
+        let dataMapping  = this.applyMapping(proxy.data);
         let dataFiltered = this.applyFilters(dataMapping);
         let dataSortered = this.applySorter(dataFiltered);
         // let dataGrouped  = this.applyGroup(dataSortered);
@@ -162,7 +162,7 @@ export class Source {
     }
 
     set data(data: object[]) {
-        this.updateData(data);
+        this.updateData();
         this.changeData();
     }
 
@@ -204,13 +204,13 @@ export class Source {
     set filters(value: Filter[]) {
         this._filters = value;
         Object.assign(this._prune, { start: 0 });
-        this.data = this.proxy.data;
+        this.data = [];
     }
 
     set sorter(value: Sorter) {
         this._sorter = value;
         Object.assign(this._prune, { start: 0 });
-        this.data = this.proxy.data;
+        this.data = [];
     }
 
     set prune(value: Prune) {
@@ -221,9 +221,14 @@ export class Source {
         this._group = value;
     }
 
+    get proxyId() {
+        return this._proxyId;
+    }
+
     public remove() {
-        this.proxy.off(Proxy.LOAD_DATA_EVENT, this._handleDataEvent);
-        this.proxy.off(Proxy.LOADING_EVENT, this._handleLoadingEvent);
-        this.proxy.off(Proxy.ERROR_EVENT, this._handleErrorEvent);
+        const proxy = ProxyPool.get(this.proxyId);
+        proxy.off(Proxy.LOAD_DATA_EVENT, this._handleDataEvent);
+        proxy.off(Proxy.LOADING_EVENT, this._handleLoadingEvent);
+        proxy.off(Proxy.ERROR_EVENT, this._handleErrorEvent);
     }
 }

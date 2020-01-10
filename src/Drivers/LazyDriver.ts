@@ -1,6 +1,5 @@
 import {
-    Driver,
-    ProxyPool
+    Driver
 } from "../internal";
 
 export interface LazyOptions {
@@ -33,11 +32,7 @@ export class LazyDriver extends Driver {
         }
         return new Promise((resolve, reject) => {
             this._promises[this._name].push((driver) => {
-                let proxy = ProxyPool.get(options.id);
-                if (proxy) {
-                    proxy.setDriver(driver);
-                    driver.load(options).then(resolve, reject);
-                }
+                driver.load(options).then(resolve, reject);
             });
         });
     }

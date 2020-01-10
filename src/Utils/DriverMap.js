@@ -15,6 +15,16 @@ DriverMap.__proto__ = Map;
 DriverMap.prototype.__proto__ = Map.prototype;
 
 Object.defineProperties(DriverMap.prototype, {
+    get: {
+        enumerable: false,
+        value: function (key) {
+            let instance = Map.prototype.get.call(this, key);
+            if (instance) {
+                instance = Object.create(instance);
+            }
+            return instance;
+        }
+    },
     set: {
         enumerable: false,
         value: function (key, value) {
