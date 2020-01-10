@@ -50,4 +50,9 @@ export class DriverManager {
             return lazydriver;
         }
     }
+
+    static get(name: string): Driver {
+        let drivers = this.getInstance().drivers;
+        return <Driver>drivers.get(name);
+    }
 }

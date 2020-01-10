@@ -1,3 +1,3 @@
-import Mordelon from "./Mordelon";
+import * as Mordelon from "./Mordelon";
 
 export default Mordelon;
