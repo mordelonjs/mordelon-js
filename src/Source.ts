@@ -75,7 +75,7 @@ export class Source {
         this._handleDataChange = handleDataChange;
         this._handleError      = handleError;
         this._handleLoading    = handleLoading;
-        const proxy = ProxyPool.add(options);
+        const proxy = ProxyPool.get(options);
         this._proxyId = proxy.id;
         proxy.on(Proxy.LOAD_DATA_EVENT, this._handleDataEvent);
         proxy.on(Proxy.LOADING_EVENT, this._handleLoadingEvent);

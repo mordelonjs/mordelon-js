@@ -18,6 +18,8 @@ export class Proxy extends EventManager {
     protected readonly _type: string = "url";
     protected _options: object = {};
     protected _data: object[] = [];
+    protected _error: any;
+    protected _loading: boolean = true;
 
     constructor(args: ProxyConfig) {
         super();
@@ -40,10 +42,12 @@ export class Proxy extends EventManager {
     }
 
     set error(reason) {
+        this._error = reason;
         this.fire(Proxy.ERROR_EVENT, reason)
     }
 
     set loading(loading: boolean) {
+        this._loading = loading;
         this.fire(Proxy.LOADING_EVENT, loading);
     }
 
@@ -76,5 +80,16 @@ export class Proxy extends EventManager {
             .then(response => this.data = response)
             .catch(reason => this.error = reason)
             .finally(() => this.loading = false);
+    }
+
+    on(event: string, cb: Function): void {
+        super.on(event, cb);
+        if (event == Proxy.ERROR_EVENT && this._error) {
+            cb(this._error);
+        } else if(event == Proxy.LOADING_EVENT && this._loading) {
+            cb(this._loading);
+        } else if(event == Proxy.LOAD_DATA_EVENT && this._data && this._data.length > 0) {
+            cb(this._data);
+        }
     }
 }
