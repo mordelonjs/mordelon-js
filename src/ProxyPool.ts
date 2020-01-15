@@ -30,23 +30,23 @@ export class ProxyPool {
         });
     }
 
-    static add(proxyConfig: ProxyConfig) : Proxy {
-        const pool = this.getInstance().getPool();
-        let code = Proxy.getHash(proxyConfig);
-        if (!pool.has(code)) {
-            proxyConfig.id = code;
-            pool.set(code, new Proxy(proxyConfig));
-        }
-        return <Proxy>pool.get(code);
-    }
-
     static remove(code: string) : boolean {
         const pool = this.getInstance().getPool();
         return pool.delete(code);
     }
 
-    static get(code: string) : Proxy {
+    static get(param: string|ProxyConfig) : Proxy {
+        let code;
         const pool = this.getInstance().getPool();
+        if (typeof param == "object") {
+            code = Proxy.getHash(param);
+            if (!pool.has(code)) {
+                param.id = code;
+                pool.set(code, new Proxy(param));
+            }
+        } else {
+            code = param;
+        }
         return <Proxy>pool.get(code);
     }
 }
