@@ -19,7 +19,8 @@ export class Proxy extends EventManager {
     protected _options: object = {};
     protected _data: object[] = [];
     protected _error: any;
-    protected _loading: boolean = true;
+    protected _loading: boolean = false;
+    protected _promise?: Promise<any>;
 
     constructor(args: ProxyConfig) {
         super();
@@ -47,12 +48,23 @@ export class Proxy extends EventManager {
     }
 
     set loading(loading: boolean) {
-        this._loading = loading;
-        this.fire(Proxy.LOADING_EVENT, loading);
+        if (this._loading !== loading) {
+            this._loading = loading;
+            this.fire(Proxy.LOADING_EVENT, loading);
+        }
     }
 
     set data(data) {
-        this._data = data;
+        if (data instanceof Object) {
+            // force data to be array
+            // doing for change JSON OBJECT(can Array[associated]) to Array,
+            this._data = [];
+            Array.from(Object.keys(data)).forEach(key => {
+                this._data[key] = data[key];
+            });
+        } else {
+            this._data = data;
+        }
         this.fire(Proxy.LOAD_DATA_EVENT, data);
     }
 
@@ -61,8 +73,10 @@ export class Proxy extends EventManager {
     }
 
     set options(options) {
-        this._options = options;
-        this.load();
+        if (JSON.stringify(options) != JSON.stringify(this._options)) {
+            this._options = options;
+            this.load();
+        }
     }
 
     get options() {
@@ -74,12 +88,14 @@ export class Proxy extends EventManager {
     }
 
     async load() {
-        this.loading = true;
         const driver = DriverManager.get(this.type);
-        await driver.load(this.options)
+        if (this._promise) { driver.cancel(this._promise); delete this._promise; }
+        this.loading = true;
+        this._promise = driver.load(this.options);
+        this._promise
             .then(response => this.data = response)
             .catch(reason => this.error = reason)
-            .finally(() => this.loading = false);
+            .finally(() => { this.loading = false; delete this._promise });
     }
 
     on(event: string, cb: Function): void {

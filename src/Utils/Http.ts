@@ -1,20 +1,23 @@
-
 export interface HttpRequest {
     method?: string,
     headers?: Record<string, string>,
     data?: object,
+    async?: boolean,
+    user?: string,
+    password?: string,
+    responseType?: string,
 }
 
 export class Http {
 
     static request(url: string, params: HttpRequest) : Promise<any> {
+        let promise, xhr, fnResolve, fnReject, fnAbort;
         let method = params.method || 'GET';
+        let async = params.async != false;
+        let user = params.user || '';
+        let password = params.password || '';
         let qs = '';
         let body;
-        let headers = Object.assign({
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        }, params.headers || {});
 
         if (['GET', 'DELETE'].indexOf(method) > -1)
             qs = (params.data && url.includes("?") ? '&' : '?' ) + Http.queryString(params.data || {});
@@ -23,8 +26,40 @@ export class Http {
 
         url = url + qs;
 
-        return fetch(url, { method, headers, body })
-            .then(response => response.json());
+        promise = new Promise(function (resolve, reject) {
+            xhr = new XMLHttpRequest();
+            xhr.open(method, url, async, user, password);
+            xhr.onload = function () {
+                if (this.status >= 200 && this.status < 300) {
+                    resolve(xhr.response);
+                } else {
+                    reject({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                }
+            };
+            xhr.responseType = params.responseType || 'json';
+
+            if (params && params.headers) {
+                Object.keys(params.headers).forEach(function (key) {
+                    if (params.headers) {
+                        xhr.setRequestHeader(key, params.headers[key]);
+                    }
+                });
+            }
+
+            xhr.send(body);
+
+            fnResolve = resolve;
+            fnReject  = reject;
+            fnAbort = xhr.abort;
+        });
+
+        promise.resolve = fnResolve;
+        promise.reject = fnReject;
+        promise.abort = fnAbort.bind(xhr);
+        return promise;
     }
 
     static get = (url:string, params: HttpRequest) => Http.request(url, Object.assign({ method: 'GET' }, params));

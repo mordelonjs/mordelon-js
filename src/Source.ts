@@ -50,7 +50,7 @@ export class Source {
     private _sorter?: Sorter;
     private _prune?: Prune;
     private _group?: string;
-    private _paginate?: boolean;
+    readonly _paginate?: boolean;
     //handles Callback's
     protected _handleDataChange?: Function;
     protected _handleError?: Function;
@@ -202,15 +202,24 @@ export class Source {
     }
 
     set filters(value: Filter[]) {
-        this._filters = value;
-        Object.assign(this._prune, { start: 0 });
-        this.data = [];
+        if ((!this._filters && value && value.length > 0) ||
+            (this._filters && this._filters.length < 1 && value.length > 0) ||
+            (this._filters && !isSame(this._filters, value))) {
+            this._filters = value;
+            //reset pagination
+            Object.assign(this._prune, { start: 0 });
+            this.data = [];
+        }
     }
 
     set sorter(value: Sorter) {
-        this._sorter = value;
-        Object.assign(this._prune, { start: 0 });
-        this.data = [];
+        if ((!this._sorter && value) ||
+            (this._sorter && !isSame(value, this._sorter))) {
+            this._sorter = value;
+            //reset pagination
+            Object.assign(this._prune, { start: 0 });
+            this.data = [];
+        }
     }
 
     set prune(value: Prune) {
@@ -221,14 +230,18 @@ export class Source {
         this._group = value;
     }
 
-    get proxyId() {
+    get proxyId(): string {
         return this._proxyId;
     }
 
-    public remove() {
+    public remove(): void {
         const proxy = ProxyPool.get(this.proxyId);
         proxy.off(Proxy.LOAD_DATA_EVENT, this._handleDataEvent);
         proxy.off(Proxy.LOADING_EVENT, this._handleLoadingEvent);
         proxy.off(Proxy.ERROR_EVENT, this._handleErrorEvent);
     }
+}
+
+export function isSame(a1:any, a2:any) {
+    return JSON.stringify(a1) === JSON.stringify(a2);
 }

@@ -30,6 +30,18 @@ export class ProxyPool {
         });
     }
 
+    static load(code: string, options?: object) {
+        const pool = this.getInstance().getPool();
+        let proxy = pool.get(code);
+        if (proxy) {
+            if (options) {
+                proxy.options = options;
+            } else {
+                proxy.load();
+            }
+        }
+    }
+
     static remove(code: string) : boolean {
         const pool = this.getInstance().getPool();
         return pool.delete(code);
