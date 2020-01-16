@@ -1,4 +1,5 @@
 import typescript from 'rollup-plugin-typescript2'
+import { terser } from "rollup-plugin-terser";
 import pkg from './package.json'
 
 export default {
@@ -6,8 +7,16 @@ export default {
     output: [
         {
             file: pkg.main,
-            format: 'iife',
+            format: 'umd',
+            extend: true,
             name: 'Mordelon'
+        },
+        {
+            file: pkg.minify,
+            format: 'umd',
+            extend: true,
+            name: 'Mordelon',
+            plugins: [terser()]
         },
         {
             file: pkg.module,
