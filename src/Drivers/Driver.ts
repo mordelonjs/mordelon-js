@@ -10,7 +10,11 @@ export abstract class Driver {
         }
     }
 
-    abstract async load(options: object): Promise<Object[]>
+    abstract load(options: object): Promise<any>
+
+    cancel(promise: Promise<any>): boolean {
+        throw new Error('Method "Cancel" is unimplemented!!')
+    }
 
     register(name: string) {
         DriverManager.register(name, this);
