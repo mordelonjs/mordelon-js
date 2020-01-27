@@ -1,3 +1,4 @@
+import {isEqual} from "./Utils/isEqual";
 import {
     Proxy,
     ProxyPool,
@@ -151,6 +152,10 @@ export class Source {
         this._handleDataChange(this.wrapper);
     }
 
+    protected resetPagination(): void {
+        Object.assign(this._prune, { start: 0 });
+    }
+
     set loading(value: boolean) {
         this._handleLoading &&
         this._handleLoading(value);
@@ -202,32 +207,31 @@ export class Source {
     }
 
     set filters(value: Filter[]) {
-        if ((!this._filters && value && value.length > 0) ||
-            (this._filters && this._filters.length < 1 && value.length > 0) ||
-            (this._filters && !isSame(this._filters, value))) {
+        if (!isEqual(this._filters, value)) {
             this._filters = value;
-            //reset pagination
-            Object.assign(this._prune, { start: 0 });
+            this.resetPagination();
             this.data = [];
         }
     }
 
     set sorter(value: Sorter) {
-        if ((!this._sorter && value) ||
-            (this._sorter && !isSame(value, this._sorter))) {
+        if (!isEqual(this._sorter, value)) {
             this._sorter = value;
-            //reset pagination
-            Object.assign(this._prune, { start: 0 });
+            this.resetPagination();
             this.data = [];
         }
     }
 
     set prune(value: Prune) {
-        this._prune = value;
+        if (!isEqual(this._prune, value)) {
+            this._prune = value;
+        }
     }
 
     set group(value: string) {
-        this._group = value;
+        if (!isEqual(this._group, value)) {
+            this._group = value;
+        }
     }
 
     get proxyId(): string {
@@ -240,8 +244,4 @@ export class Source {
         proxy.off(Proxy.LOADING_EVENT, this._handleLoadingEvent);
         proxy.off(Proxy.ERROR_EVENT, this._handleErrorEvent);
     }
-}
-
-export function isSame(a1:any, a2:any) {
-    return JSON.stringify(a1) === JSON.stringify(a2);
 }

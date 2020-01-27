@@ -1,3 +1,4 @@
+import {isEqual} from "./Utils/isEqual";
 import {
     EventManager,
     DriverManager
@@ -43,12 +44,14 @@ export class Proxy extends EventManager {
     }
 
     set error(reason) {
-        this._error = reason;
-        this.fire(Proxy.ERROR_EVENT, reason)
+        if (!isEqual(this._error, reason)) {
+            this._error = reason;
+            this.fire(Proxy.ERROR_EVENT, reason);
+        }
     }
 
     set loading(loading: boolean) {
-        if (this._loading !== loading) {
+        if (!isEqual(this._loading, loading)) {
             this._loading = loading;
             this.fire(Proxy.LOADING_EVENT, loading);
         }
@@ -73,7 +76,7 @@ export class Proxy extends EventManager {
     }
 
     set options(options) {
-        if (JSON.stringify(options) != JSON.stringify(this._options)) {
+        if (!isEqual(this._options, options)) {
             this._options = options;
             this.load();
         }
