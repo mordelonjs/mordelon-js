@@ -5,9 +5,15 @@ import {
     LazyDriver
 } from "./internal";
 
+export interface DriverMap extends Map<string, Driver> {
+    watch: Function,
+    unwatch: Function,
+    observer: []
+}
+
 export class DriverManager {
-    // @ts-ignore
-    protected drivers: Map<string, Driver> = new DriverMap();
+
+    protected drivers: DriverMap = new DriverMap();
     private static instance: DriverManager;
 
     constructor() {
@@ -39,11 +45,11 @@ export class DriverManager {
             let lazydriver = new LazyDriver(name);
             // register lazy driver
             lazydriver.register(name);
-            // @ts-ignore
+            // watch lazy driver
             drivers.watch(name, (driver: Driver) => {
                 // process new driver
                 lazydriver.process(driver);
-                // @ts-ignore
+                // unwatch lazy driver
                 drivers.unwatch(name);
             });
             // return lazy driver
